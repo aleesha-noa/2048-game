@@ -36,6 +36,39 @@ MOVE_VEL = 20 # speed at which tiles will move in pixels per second
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("2048")
 
+##### CLASSES #####
+class Tile:
+    COLOURS = [
+        (237, 229, 218), 
+        (238, 225, 201), 
+        (243, 178, 122), 
+        (246, 150, 101), 
+        (247, 124, 95), 
+        (247, 95, 59), 
+        (237, 208, 115), 
+        (237, 204, 99), 
+        (236, 202, 80)
+    ] # colours for 2, 4, 8, 16, 32, 64, etc.
+
+    def __init__(self, value, row, col):
+        # for each tile, need to know its position (row and column) and its value
+        self.value = value
+        self.row = row
+        self.col = col
+        self.x = col * RECT_WIDTH
+        self.y = row * RECT_HEIGHT
+
+    def get_colour(self):
+        pass
+
+
+    def draw(self, window):
+        pass
+
+    def set_position(self, ceil=False):
+        pass
+
+
 ##### METHODS #####
 
 def draw_grid(window):
@@ -72,7 +105,7 @@ def main(window):
     run = True
 
     while run:
-        clock.rick(FPS)
+        clock.tick(FPS)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
