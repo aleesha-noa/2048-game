@@ -36,8 +36,11 @@ MOVE_VEL = 20 # speed at which tiles will move in pixels per second
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("2048")
 
+
 ##### CLASSES #####
 class Tile:
+    # set the colours of the different tile values
+    # colours for 2, 4, 8, 16, 32, 64, etc.
     COLOURS = [
         (237, 229, 218), 
         (238, 225, 201), 
@@ -48,7 +51,7 @@ class Tile:
         (237, 208, 115), 
         (237, 204, 99), 
         (236, 202, 80)
-    ] # colours for 2, 4, 8, 16, 32, 64, etc.
+    ]
 
     def __init__(self, value, row, col):
         # for each tile, need to know its position (row and column) and its value
@@ -65,7 +68,19 @@ class Tile:
 
 
     def draw(self, window):
-        pass
+        # draw the rectangle than the value after
+
+        colour = self.get_colour()
+        pygame.draw.rect(window, colour, (self.x, self.y, RECT_WIDTH, RECT_HEIGHT))
+
+        text = FONT.render(str(self.value), 1, FONT_COLOUR) # created a surface that contains the text
+        window.blit(
+            text, 
+            (
+                self.x + (RECT_WIDTH / 2 - text.get_width() / 2), 
+                self.y + (RECT_HEIGHT / 2 - text.get_height() / 2)
+            )
+        )
 
     def set_position(self, ceil=False):
         if ceil:
