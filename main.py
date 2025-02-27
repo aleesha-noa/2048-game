@@ -38,6 +38,22 @@ pygame.display.set_caption("2048")
 
 ##### METHODS #####
 
+def draw_grid(window):
+    # draw horizontal and vertical lines to represent the separation between tiles and the border
+
+    # first draw horizontal gridlines
+    for row in range(1, ROWS): # draw a line for every row that is there, start at one and not zero since the first line is part of the border
+        y = row * RECT_HEIGHT
+        pygame.draw.line(window, OUTLINE_COLOUR, (0, y), (WIDTH, y), OUTLINE_THICKNESS)
+
+    # next draw vertical gridlines
+    for col in range(1, COLS): # draw a line for every column line that is there, start at one and not zero since the first line is part of the border
+        x = col * RECT_WIDTH
+        pygame.draw.line(window, OUTLINE_COLOUR, (x, 0), (x, HEIGHT), OUTLINE_THICKNESS)
+
+    # next do the border
+    pygame.draw.rect(window, OUTLINE_COLOUR, (0, 0, WIDTH, HEIGHT), OUTLINE_THICKNESS)
+
 def draw(window):
     window.fill(BACKGROUND_COLOUR)
 
