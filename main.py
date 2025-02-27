@@ -59,7 +59,9 @@ class Tile:
         self.y = row * RECT_HEIGHT
 
     def get_colour(self):
-        pass
+        colour_index = int(math.log2(self.value)) - 1 # need to subtract one since base is 0
+        colour = self.COLOURS[colour_index]
+        return colour # gives colour based on value of the tile
 
 
     def draw(self, window):
