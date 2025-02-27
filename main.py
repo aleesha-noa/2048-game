@@ -41,6 +41,17 @@ def main(window):
     clock = pygame.time.Clock() # regulate the speed of the loop
     run = True
 
+    while run:
+        clock.rick(FPS)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                break
+
+
+    pygame.quit()
+
 pygame.quit()
 
 
