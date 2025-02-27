@@ -140,6 +140,126 @@ def get_random_position(tiles):
 
     return row, col
 
+def move_tiles(window, tiles, clock, direction):
+    updated = True
+    blocks = set() # tells which tiles have already merged in a specific movement
+
+    # go through response for each possibility (left, right, up down)
+    # if user presses left arrow key
+    if direction == "left":
+        sort_function = lambda x: x.col
+        reverse = False # whether to sort in ascending or descending order
+        delta = (-MOVE_VEL, 0)
+        boundary_check = lambda tile: tile.col == 0 # if equal to 0, already as far left as the tile can go
+        get_next_tile = lambda tile: tiles.get(f"{tile.row}{tile.col - 1}") # looking to the tile to the left of the current tile
+        merge_check = lambda tile, next_tile: tile.x > next_tile.x + MOVE_VEL # whether or not we should merge the tile based on the current movement of that tile
+        move_check = lambda tile, next_tile: tile.x > next_tile.x + RECT_WIDTH + MOVE_VEL # when moving but tile to the left is not the same value as the current tile
+        ceil = True
+    
+    # if user presses right arrow key
+    elif direction == "right":
+        sort_function = lambda x: x.col
+        reverse = True
+        delta = (MOVE_VEL, 0)
+        boundary_check = lambda tile: tile.col == COLS - 1
+        get_next_tile = lambda tile: tiles.get(f"{tile.row}{tile.col +1}")
+        merge_check = lambda tile, next_tile: tile.x < next_tile.x - MOVE_VEL
+        move_check = (
+            lambda tile, next_tile: tile.x + RECT_WIDTH + MOVE_VEL < next_tile.x
+        )
+        ceil = False
+    
+    # if user presses up arrow key
+    elif direction == "up":
+        sort_function = lambda x: x.row
+        reverse = False
+        delta = (0, -MOVE_VEL)
+        boundary_check = lambda tile: tile.row == 0
+        get_next_tile = lambda tile: tiles.get(f"{tile.row - 1}{tile.col}")
+        merge_check = lambda tile, next_tile: tile.y > next_tile.y + MOVE_VEL
+        move_check = (
+            lambda tile, next_tile: tile.y > next_tile.y + RECT_HEIGHT + MOVE_VEL
+        )
+        ceil = True
+    
+    # if user presses down arrow key
+    elif direction == "down":
+        sort_function = lambda x: x.row
+        reverse = True
+        delta = (0, MOVE_VEL)
+        boundary_check = lambda tile: tile.row == ROWS - 1
+        get_next_tile = lambda tile: tiles.get(f"{tile.row + 1}{tile.col}")
+        merge_check = lambda tile, next_tile: tile.y < next_tile.y - MOVE_VEL
+        move_check = (
+            lambda tile, next_tile: tile.y + RECT_HEIGHT + MOVE_VEL < next_tile.y
+        )
+        ceil = False
+
+    while updated:
+        clock.tick(FPS)
+        updated = False
+        sorted_tiles = sorted(tiles.values(), key=sort_function, reverse=reverse)
+
+        for j, tile in enumerate(sorted_tiles):
+            if boundary_check(tile):
+                continue
+
+            # getting next tile
+            next_tile = get_next_tile(tile)
+
+            # if no next tile, just move
+            if not next_tile:
+                tile.move(delta)
+
+            # if there is a next tile, and that value is the same as the current value, then initiative merge operation
+            elif tile.value == next_tile.value and tile not in blocks and next_tile not in blocks:
+                if merge_check(tile, next_tile):
+                    tile.move(delta)
+                else: # perform merge operation
+                    next_tile.value *= 2
+                    sorted_tiles.pop(j)
+                    blocks.add(tile)
+
+            # now have a next tile that is not the same as the current one, so only move to the border of the next tile
+            elif move_check(tile, next_tile):
+                tile.move(delta)
+
+            # if none of the above is true, just continue and don't update (no merge operation)
+            else:
+                continue
+            
+            tile.set_position(ceil)
+            updated = True
+        
+        update_tiles(window, tiles, sorted_tiles)
+
+    return end_game(tiles)
+
+def end_game(tiles):
+    if len(tiles) == 16:
+        return "lost"
+    
+    row, col = get_random_position(tiles)
+    tiles[f"{row}{col}"] = Tile(random.choice([2, 4]), row, col) # choose to add either a 2 or 4 tile
+    return "continue"
+
+def update_tiles(window, tiles, sorted_tiles):
+    tiles.clear()
+    for tile in sorted_tiles:
+        tiles[f"{tile.row}{tile.col}"] = tile
+
+    draw(window, tiles)
+
+def generate_tiles():
+    # randomly pick two positions to put the tiles in
+    tiles = {}
+    
+    for i in range(2):
+        row, col = get_random_position(tiles)
+        tiles[f"{row}{col}"] = Tile(2, row, col)
+    
+    return tiles
+
 def main(window):
     clock = pygame.time.Clock() # regulate the speed of the loop
     run = True
