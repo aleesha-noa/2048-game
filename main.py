@@ -37,6 +37,20 @@ WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("2048")
 
 ##### METHODS #####
+
+def draw(window):
+    window.fill(BACKGROUND_COLOUR)
+
+    for tile in tiles.values():
+        tile.draw(window)
+
+    draw_grid(window)
+
+    pygame.display.update()    
+  
+    window.fill(BACKGROUND_COLOUR)
+    pygame.display.update()
+
 def main(window):
     clock = pygame.time.Clock() # regulate the speed of the loop
     run = True
