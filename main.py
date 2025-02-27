@@ -126,6 +126,20 @@ def draw(window):
     window.fill(BACKGROUND_COLOUR)
     pygame.display.update()
 
+def get_random_position(tiles):
+    # make sure not to place tile in a tile that already exists
+    row = None
+    col = None
+    
+    while True:
+        row = random.randrange(0, ROWS)
+        col = random.randrange(0, COLS)
+
+        if f"{row}{col}" not in tiles:
+            break
+
+    return row, col
+
 def main(window):
     clock = pygame.time.Clock() # regulate the speed of the loop
     run = True
