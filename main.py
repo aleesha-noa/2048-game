@@ -30,7 +30,9 @@ FONT_COLOUR = (119, 110, 101)
 # use this to render text onto the screen
 #TODO: change font
 FONT = pygame.font.SysFont("comicsans", 60, bold=True)
-MOVE_VEL = 20 # speed at which tiles will move in pixels per second
+
+# speed at which tiles will move in pixels per second
+MOVE_VEL = 20
 
 # make the display window in pygame
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -54,7 +56,8 @@ class Tile:
     ]
 
     def __init__(self, value, row, col):
-        # for each tile, need to know its position (row and column) and its value
+        # for each tile, need to know its position (row and column) 
+        # and its value
         self.value = value
         self.row = row
         self.col = col
@@ -62,18 +65,23 @@ class Tile:
         self.y = row * RECT_HEIGHT
 
     def get_colour(self):
-        colour_index = int(math.log2(self.value)) - 1 # need to subtract one since base is 0
+        # need to subtract one since base is 0
+        colour_index = int(math.log2(self.value)) - 1
         colour = self.COLOURS[colour_index]
-        return colour # gives colour based on value of the tile
+
+        # gives colour based on value of the tile
+        return colour
 
 
     def draw(self, window):
         # draw the rectangle than the value after
 
         colour = self.get_colour()
-        pygame.draw.rect(window, colour, (self.x, self.y, RECT_WIDTH, RECT_HEIGHT))
+        pygame.draw.rect(window, colour, 
+                         (self.x, self.y, RECT_WIDTH, RECT_HEIGHT))
 
-        text = FONT.render(str(self.value), 1, FONT_COLOUR) # created a surface that contains the text
+        # created a surface that contains the text
+        text = FONT.render(str(self.value), 1, FONT_COLOUR)
         window.blit(
             text, 
             (
@@ -98,20 +106,28 @@ class Tile:
 ##### METHODS #####
 
 def draw_grid(window):
-    # draw horizontal and vertical lines to represent the separation between tiles and the border
+    # draw horizontal and vertical lines to represent the separation 
+    # between tiles and the border
 
     # first draw horizontal gridlines
-    for row in range(1, ROWS): # draw a line for every row that is there, start at one and not zero since the first line is part of the border
+    # draw a line for every row that is there, start at one and not zero 
+    # since the first line is part of the border
+    for row in range(1, ROWS):
         y = row * RECT_HEIGHT
-        pygame.draw.line(window, OUTLINE_COLOUR, (0, y), (WIDTH, y), OUTLINE_THICKNESS)
+        pygame.draw.line(window, OUTLINE_COLOUR, 
+                         (0, y), (WIDTH, y), OUTLINE_THICKNESS)
 
     # next draw vertical gridlines
-    for col in range(1, COLS): # draw a line for every column line that is there, start at one and not zero since the first line is part of the border
+    # draw a line for every column line that is there, start at one and 
+    # not zero since the first line is part of the border
+    for col in range(1, COLS):
         x = col * RECT_WIDTH
-        pygame.draw.line(window, OUTLINE_COLOUR, (x, 0), (x, HEIGHT), OUTLINE_THICKNESS)
+        pygame.draw.line(window, OUTLINE_COLOUR, 
+                         (x, 0), (x, HEIGHT), OUTLINE_THICKNESS)
 
     # next do the border
-    pygame.draw.rect(window, OUTLINE_COLOUR, (0, 0, WIDTH, HEIGHT), OUTLINE_THICKNESS)
+    pygame.draw.rect(window, OUTLINE_COLOUR, 
+                     (0, 0, WIDTH, HEIGHT), OUTLINE_THICKNESS)
 
 def draw(window, tiles):
     window.fill(BACKGROUND_COLOUR)
@@ -139,18 +155,33 @@ def get_random_position(tiles):
 
 def move_tiles(window, tiles, clock, direction):
     updated = True
-    blocks = set() # tells which tiles have already merged in a specific movement
+    
+    # tells which tiles have already merged in a specific movement
+    blocks = set()
 
     # go through response for each possibility (left, right, up down)
     # if user presses left arrow key
     if direction == "left":
         sort_function = lambda x: x.col
-        reverse = False # whether to sort in ascending or descending order
+
+        # whether to sort in ascending or descending order
+        reverse = False
         delta = (-MOVE_VEL, 0)
-        boundary_check = lambda tile: tile.col == 0 # if equal to 0, already as far left as the tile can go
-        get_next_tile = lambda tile: tiles.get(f"{tile.row}{tile.col - 1}") # looking to the tile to the left of the current tile
-        merge_check = lambda tile, next_tile: tile.x > next_tile.x + MOVE_VEL # whether or not we should merge the tile based on the current movement of that tile
-        move_check = lambda tile, next_tile: tile.x > next_tile.x + RECT_WIDTH + MOVE_VEL # when moving but tile to the left is not the same value as the current tile
+        
+        # if equal to 0, already as far left as the tile can go
+        boundary_check = lambda tile: tile.col == 0
+
+        # looking to th etile to the left of the current tile
+        get_next_tile = lambda tile: tiles.get(f"{tile.row}{tile.col - 1}")
+
+        # whether or not the tiles should merge 
+        # based on the current movement of that tile
+        merge_check = lambda tile, next_tile: tile.x > next_tile.x + MOVE_VEL
+        
+        # when moving but tile to the left is not 
+        # the same value as the current tile
+        move_check = lambda tile, next_tile: tile.x > next_tile.x + RECT_WIDTH + \
+            MOVE_VEL
         ceil = True
     
     # if user presses right arrow key
@@ -208,7 +239,8 @@ def move_tiles(window, tiles, clock, direction):
             if not next_tile:
                 tile.move(delta)
 
-            # if there is a next tile, and that value is the same as the current value, then initiative merge operation
+            # if there is a next tile, and that value is the same as the current 
+            # value, then initiative merge operation
             elif tile.value == next_tile.value and tile not in blocks and next_tile not in blocks:
                 if merge_check(tile, next_tile):
                     tile.move(delta)
@@ -217,11 +249,13 @@ def move_tiles(window, tiles, clock, direction):
                     sorted_tiles.pop(j)
                     blocks.add(tile)
 
-            # now have a next tile that is not the same as the current one, so only move to the border of the next tile
+            # now have a next tile that is not the same as the current one, so 
+            # only move to the border of the next tile
             elif move_check(tile, next_tile):
                 tile.move(delta)
 
-            # if none of the above is true, just continue and don't update (no merge operation)
+            # if none of the above is true, just continue and don't 
+            # update (no merge operation)
             else:
                 continue
             
