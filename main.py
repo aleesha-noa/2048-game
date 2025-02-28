@@ -34,7 +34,7 @@ MOVE_VEL = 20 # speed at which tiles will move in pixels per second
 
 # make the display window in pygame
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("2048")
+pygame.display.set_caption("2048 Game")
 
 
 ##### CLASSES #####
@@ -113,7 +113,7 @@ def draw_grid(window):
     # next do the border
     pygame.draw.rect(window, OUTLINE_COLOUR, (0, 0, WIDTH, HEIGHT), OUTLINE_THICKNESS)
 
-def draw(window):
+def draw(window, tiles):
     window.fill(BACKGROUND_COLOUR)
 
     for tile in tiles.values():
@@ -122,9 +122,6 @@ def draw(window):
     draw_grid(window)
 
     pygame.display.update()    
-  
-    window.fill(BACKGROUND_COLOUR)
-    pygame.display.update()
 
 def get_random_position(tiles):
     # make sure not to place tile in a tile that already exists
