@@ -264,18 +264,29 @@ def main(window):
     clock = pygame.time.Clock() # regulate the speed of the loop
     run = True
 
+    tiles = generate_tiles()
+
     while run:
-        clock.tick(FPS)
+        clock.tick(FPS) # only going to run at most 1 time every 60 seconds, could run less
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 break
 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    move_tiles(window, tiles, clock, "left")
+                if event.key == pygame.K_RIGHT:
+                    move_tiles(window, tiles, clock, "right")
+                if event.key == pygame.K_UP:
+                    move_tiles(window, tiles, clock, "up")
+                if event.key == pygame.K_DOWN:
+                    move_tiles(window, tiles, clock, "down")
 
+        draw(window, tiles)
+    
     pygame.quit()
-
-pygame.quit()
 
 
 if __name__ == "__main__":
