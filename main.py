@@ -29,10 +29,10 @@ FONT_COLOUR = (102, 51, 0)
 
 # use this to render text onto the screen
 #TODO: change font
-FONT = pygame.font.SysFont("comicsans", 60, bold=True)
+FONT = pygame.font.SysFont("calibri", 60, bold=True)
 
 # speed at which tiles will move in pixels per second
-MOVE_VEL = 20
+MOVE_VEL = 40
 
 # make the display window in pygame
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -164,14 +164,16 @@ def move_tiles(window, tiles, clock, direction):
     if direction == "left":
         sort_function = lambda x: x.col
 
-        # whether to sort in ascending or descending order
+        # whether to sort tiles in ascending or descending order
         reverse = False
+
+        # moving in left direction, so x is negative and y doesn't change
         delta = (-MOVE_VEL, 0)
         
         # if equal to 0, already as far left as the tile can go
         boundary_check = lambda tile: tile.col == 0
 
-        # looking to th etile to the left of the current tile
+        # looking to the tile to the left of the current tile (to see if they should be merged or not)
         get_next_tile = lambda tile: tiles.get(f"{tile.row}{tile.col - 1}")
 
         # whether or not the tiles should merge 
@@ -247,7 +249,7 @@ def move_tiles(window, tiles, clock, direction):
                 else: # perform merge operation
                     next_tile.value *= 2
                     sorted_tiles.pop(j)
-                    blocks.add(tile)
+                    blocks.add(next_tile)
 
             # now have a next tile that is not the same as the current one, so 
             # only move to the border of the next tile
