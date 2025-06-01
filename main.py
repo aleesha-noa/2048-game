@@ -2,7 +2,6 @@ import pygame
 import random
 import math
 
-# initialize pygame
 pygame.init()
 
 ##### GLOBAL VARIABLES #####
@@ -14,8 +13,8 @@ HEIGHT = 800
 ROWS = 4
 COLS = 4
 
-SQUARE_HEIGHT = HEIGHT // ROWS
-SQUARE_WIDTH = WIDTH // COLS
+TILE_HEIGHT = HEIGHT // ROWS
+TILE_WIDTH = WIDTH // COLS
 
 # make outline grey (in RGB)
 OUTLINE_COLOUR = (153, 153, 153)
@@ -23,20 +22,20 @@ OUTLINE_COLOUR = (153, 153, 153)
 # choose thickness of outline
 OUTLINE_THICKNESS = 10
 
-# set background and font colour
-BACKGROUND_COLOUR = (177, 177, 205)
-FONT_COLOUR = (102, 51, 0)
+# set background and font colour (in rgb)
+BACKGROUND_COLOUR = (215, 204, 174)
+FONT_COLOUR = (57, 55, 49)
 
 # use this to render text onto the screen
-#TODO: change font
-FONT = pygame.font.SysFont("calibri", 60, bold=True)
+FONT = pygame.font.SysFont("Courier New", 80, bold=True)
 
 # speed at which tiles will move in pixels per second
+# TODO: increase this speed
 MOVE_VEL = 40
 
 # make the display window in pygame
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("2048 Game")
+pygame.display.set_caption("2048")
 
 
 ##### CLASSES #####
@@ -44,15 +43,16 @@ class Tile:
     # set the colours of the different tile values
     # colours for 2, 4, 8, 16, 32, 64, etc.
     COLOURS = [
-        (237, 229, 218), 
-        (238, 225, 201), 
-        (243, 178, 122), 
-        (246, 150, 101), 
-        (247, 124, 95), 
-        (247, 95, 59), 
-        (237, 208, 115), 
-        (237, 204, 99), 
-        (236, 202, 80)
+        (237, 229, 218), # 2
+        (238, 225, 201), # 4
+        (243, 178, 122), # 8
+        (246, 150, 100), # 16
+        (247, 124, 95), # 32
+        (247, 95, 59),  # 64
+        (237, 208, 115), # 128
+        (237, 204, 99), # 256
+        (236, 202, 80), # 512
+        (0, 0, 0) # 2048
     ]
 
     def __init__(self, value, row, col):
@@ -61,11 +61,12 @@ class Tile:
         self.value = value
         self.row = row
         self.col = col
-        self.x = col * SQUARE_WIDTH
-        self.y = row * SQUARE_HEIGHT
+        self.x = col * TILE_WIDTH
+        self.y = row * TILE_HEIGHT
 
-    def get_colour(self):
-        # need to subtract one since base is 0
+    def get_tile_colour(self):
+        # need to subtract one since list index starts with 0
+        # set of possible tile values follows 2^x pattern so can use log
         colour_index = int(math.log2(self.value)) - 1
         colour = self.COLOURS[colour_index]
 
@@ -74,29 +75,28 @@ class Tile:
 
 
     def draw(self, window):
-        # draw the rectangle than the value after
-
-        colour = self.get_colour()
+        # draw the tile
+        colour = self.get_tile_colour()
         pygame.draw.rect(window, colour, 
-                         (self.x, self.y, SQUARE_WIDTH, SQUARE_HEIGHT))
+                         (self.x, self.y, TILE_WIDTH, TILE_HEIGHT))
 
         # created a surface that contains the text
         text = FONT.render(str(self.value), 1, FONT_COLOUR)
         window.blit(
             text, 
             (
-                self.x + (SQUARE_WIDTH / 2 - text.get_width() / 2), 
-                self.y + (SQUARE_HEIGHT / 2 - text.get_height() / 2)
+                self.x + (TILE_WIDTH / 2 - text.get_width() / 2), 
+                self.y + (TILE_HEIGHT / 2 - text.get_height() / 2)
             )
         )
 
     def set_position(self, ceil=False):
         if ceil:
-            self.row = math.ceil(self.y / SQUARE_HEIGHT)
-            self.col = math.ceil(self.x / SQUARE_HEIGHT)
+            self.row = math.ceil(self.y / TILE_HEIGHT)
+            self.col = math.ceil(self.x / TILE_HEIGHT)
         else:
-            self.row = math.floor(self.y / SQUARE_HEIGHT)
-            self.col = math.floor(self.x / SQUARE_WIDTH)
+            self.row = math.floor(self.y / TILE_HEIGHT)
+            self.col = math.floor(self.x / TILE_WIDTH)
 
     def move(self, delta):
         self.x += delta[0]
@@ -113,7 +113,7 @@ def draw_grid(window):
     # draw a line for every row that is there, start at one and not zero 
     # since the first line is part of the border
     for row in range(1, ROWS):
-        y = row * SQUARE_HEIGHT
+        y = row * TILE_HEIGHT
         pygame.draw.line(window, OUTLINE_COLOUR, 
                          (0, y), (WIDTH, y), OUTLINE_THICKNESS)
 
@@ -121,7 +121,7 @@ def draw_grid(window):
     # draw a line for every column line that is there, start at one and 
     # not zero since the first line is part of the border
     for col in range(1, COLS):
-        x = col * SQUARE_WIDTH
+        x = col * TILE_WIDTH
         pygame.draw.line(window, OUTLINE_COLOUR, 
                          (x, 0), (x, HEIGHT), OUTLINE_THICKNESS)
 
@@ -182,7 +182,7 @@ def move_tiles(window, tiles, clock, direction):
         
         # when moving but tile to the left is not 
         # the same value as the current tile
-        move_check = lambda tile, next_tile: tile.x > next_tile.x + SQUARE_WIDTH + \
+        move_check = lambda tile, next_tile: tile.x > next_tile.x + TILE_WIDTH + \
             MOVE_VEL
         ceil = True
     
@@ -195,7 +195,7 @@ def move_tiles(window, tiles, clock, direction):
         get_next_tile = lambda tile: tiles.get(f"{tile.row}{tile.col +1}")
         merge_check = lambda tile, next_tile: tile.x < next_tile.x - MOVE_VEL
         move_check = (
-            lambda tile, next_tile: tile.x + SQUARE_WIDTH + MOVE_VEL < next_tile.x
+            lambda tile, next_tile: tile.x + TILE_WIDTH + MOVE_VEL < next_tile.x
         )
         ceil = False
     
@@ -208,7 +208,7 @@ def move_tiles(window, tiles, clock, direction):
         get_next_tile = lambda tile: tiles.get(f"{tile.row - 1}{tile.col}")
         merge_check = lambda tile, next_tile: tile.y > next_tile.y + MOVE_VEL
         move_check = (
-            lambda tile, next_tile: tile.y > next_tile.y + SQUARE_HEIGHT + MOVE_VEL
+            lambda tile, next_tile: tile.y > next_tile.y + TILE_HEIGHT + MOVE_VEL
         )
         ceil = True
     
@@ -221,7 +221,7 @@ def move_tiles(window, tiles, clock, direction):
         get_next_tile = lambda tile: tiles.get(f"{tile.row + 1}{tile.col}")
         merge_check = lambda tile, next_tile: tile.y < next_tile.y - MOVE_VEL
         move_check = (
-            lambda tile, next_tile: tile.y + SQUARE_HEIGHT + MOVE_VEL < next_tile.y
+            lambda tile, next_tile: tile.y + TILE_HEIGHT + MOVE_VEL < next_tile.y
         )
         ceil = False
 
